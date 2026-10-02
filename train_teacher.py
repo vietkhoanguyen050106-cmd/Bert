@@ -4,8 +4,8 @@ from transformers import (
     DataCollatorWithPadding
 )
 
-from dataset import load_sst2
-from model_teacher import build_teacher
+from Bert.dataset import load_sst2
+from Bert.model_teacher import build_teacher
 
 
 OUTPUT_DIR = "/kaggle/working/teacher"

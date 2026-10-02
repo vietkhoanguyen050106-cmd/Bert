@@ -1,5 +1,6 @@
 import torch
 from transformers import AutoModelForSequenceClassification
+from Bert.config import MODEL_NAME, NUM_LABELS, NUM_STUDENT_LAYERS
 
 
 MODEL_NAME = "bert-base-uncased"

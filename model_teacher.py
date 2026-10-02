@@ -1,5 +1,5 @@
 from transformers import AutoModelForSequenceClassification
-
+from Bert.config import MODEL_NAME, NUM_LABELS
 
 MODEL_NAME = "bert-base-uncased"
 NUM_LABELS = 2

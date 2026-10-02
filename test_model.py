@@ -1,5 +1,5 @@
-from dataset import load_sst2
-from model import build_student
+from Bert.dataset import load_sst2
+from Bert.model import build_student
 
 
 # 1. Load dataset and tokenizer

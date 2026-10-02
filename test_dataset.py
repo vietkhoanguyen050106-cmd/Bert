@@ -1,4 +1,4 @@
-from dataset import load_sst2
+from Bert.dataset import load_sst2
 
 
 dataset, tokenizer = load_sst2()
