@@ -21,10 +21,10 @@ TEACHER_DIR = os.path.join(OUTPUT_ROOT, "teacher")
  
  
 def student_dir(mode, num_layers):
-    """mode is 'baseline' (hard labels only) or 'distill' (learns from the teacher)."""
+   
     return os.path.join(OUTPUT_ROOT, f"student_{mode}_{num_layers}L")
  
  
 def is_trained(directory):
-    """A model counts as finished once save_model() wrote config.json in its folder."""
+   
     return os.path.exists(os.path.join(directory, "config.json"))

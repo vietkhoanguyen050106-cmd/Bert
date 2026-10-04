@@ -1,3 +1,6 @@
+import json
+import os
+ 
 import numpy as np
 import torch
 import evaluate
@@ -9,6 +12,7 @@ _accuracy = evaluate.load("accuracy")
  
  
 def compute_metrics(eval_pred):
+    
     logits, labels = eval_pred
     predictions = np.argmax(logits, axis=-1)
     return _accuracy.compute(predictions=predictions, references=labels)
@@ -24,8 +28,11 @@ def make_training_args(output_dir, epochs=NUM_EPOCHS, lr=LEARNING_RATE):
         per_device_eval_batch_size=64,
         weight_decay=0.01,
         warmup_ratio=0.1,
-        eval_strategy="epoch",
-        save_strategy="epoch",
+        eval_strategy="steps",
+        eval_steps=500,
+        save_strategy="steps",
+        save_steps=500,
+        logging_steps=100,
         save_total_limit=1,
         load_best_model_at_end=True,
         metric_for_best_model="accuracy",
@@ -36,4 +43,12 @@ def make_training_args(output_dir, epochs=NUM_EPOCHS, lr=LEARNING_RATE):
  
  
 def count_parameters(model):
-     return sum(p.numel() for p in model.parameters())
+    
+    return sum(p.numel() for p in model.parameters())
+ 
+ 
+def save_history(trainer, output_dir):
+    
+    os.makedirs(output_dir, exist_ok=True)
+    with open(os.path.join(output_dir, "log_history.json"), "w") as f:
+        json.dump(trainer.state.log_history, f, indent=2)

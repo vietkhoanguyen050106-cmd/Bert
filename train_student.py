@@ -1,58 +1,43 @@
-from transformers import (
-    TrainingArguments,
-    Trainer,
-    DataCollatorWithPadding
-)
+import argparse
+ 
+from transformers import DataCollatorWithPadding, Trainer
+ 
+from Bert.config import NUM_EPOCHS, student_dir
 from Bert.dataset import load_sst2
 from Bert.model_student import build_student
-from Bert.config import STUDENT_BASELINE_DIR
-from Bert.utils import compute_metrics, make_training_args, report
-
-
-OUTPUT_DIR = "./student_baseline"
-
-def main():    
+from Bert.utils import compute_metrics, count_parameters, make_training_args, save_history
+ 
+ 
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--layers", type=int, default=6, help="encoder layers in the student")
+    parser.add_argument("--init", default="alternate", choices=["alternate", "first"])
+    parser.add_argument("--epochs", type=int, default=NUM_EPOCHS)
+    args = parser.parse_args()
+    output_dir = student_dir("baseline", args.layers)
+ 
     dataset, tokenizer = load_sst2()
-
-
-    student = build_student()
-
-
-    data_collator = DataCollatorWithPadding(
-    tokenizer=tokenizer
-)
-
-
-    training_args = TrainingArguments(
-        output_dir=OUTPUT_DIR,
-        num_train_epochs=3,
-        per_device_train_batch_size=16,
-        per_device_eval_batch_size=32,
-        learning_rate=2e-5,
-        weight_decay=0.01,
-        eval_strategy="epoch",
-        save_strategy="epoch",
-        load_best_model_at_end=True,
-        report_to="none"
-)
-
-
-trainer = Trainer(
-    model=student,
-    args=training_args,
-    train_dataset=dataset["train"],
-    eval_dataset=dataset["validation"],
-    data_collator=data_collator
-)
-
-
-trainer.train()
-
-
-trainer.save_model(OUTPUT_DIR)
-tokenizer.save_pretrained(OUTPUT_DIR)
-
-report("student_baseline", trainer, student)
+    student = build_student(args.layers, args.init)
+    data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+ 
+    trainer = Trainer(
+        model=student,
+        args=make_training_args(output_dir, epochs=args.epochs),
+        train_dataset=dataset["train"],
+        eval_dataset=dataset["validation"],
+        data_collator=data_collator,
+        compute_metrics=compute_metrics,
+    )
+ 
+    trainer.train()
+    trainer.save_model(output_dir)
+    tokenizer.save_pretrained(output_dir)
+    save_history(trainer, output_dir)
+ 
+    metrics = trainer.evaluate()
+    print(f"[student_baseline_{args.layers}L] accuracy={metrics['eval_accuracy']:.4f} "
+          f"params={count_parameters(student) / 1e6:.1f}M")
+ 
  
 if __name__ == "__main__":
     main()
