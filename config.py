@@ -5,7 +5,7 @@ MODEL_NAME = "bert-base-uncased"
 NUM_LABELS = 2                   
 MAX_LENGTH = 128                   
 SEED = 42                         
- 
+NUM_STUDENT_LAYERS = 6
 
 NUM_EPOCHS = 3
 LEARNING_RATE = 2e-5
