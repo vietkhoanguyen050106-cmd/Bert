@@ -7,35 +7,21 @@ MAX_LENGTH = 128
 
 
 def load_sst2():
-    
-    dataset = load_dataset("nyu-mll/glue", "sst2")
+     
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+        raw_dataset = load_dataset("glue", "sst2")
 
 
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-
-
-    def tokenize_function(batch):
-        return tokenizer(
-            batch["sentence"],
-            truncation=True,
-            max_length=MAX_LENGTH
-        )
-
-    
-    tokenized_dataset = dataset.map(
-        tokenize_function,
-        batched=True
+        def tokenize_batch(batch):
+            return tokenizer(
+                batch["sentence"],
+                truncation=True,
+                max_length=MAX_LENGTH
+            )
+        
+        return (
+        raw_dataset.map(
+            tokenize_batch, batched=True, remove_columns=["sentence", "idx"]
+        ),
+        tokenizer,
     )
-
-    
-    tokenized_dataset = tokenized_dataset.remove_columns(
-        ["sentence", "idx"]
-    )
-
-    
-    tokenized_dataset = tokenized_dataset.rename_column(
-        "label",
-        "labels"
-    )
-
-    return tokenized_dataset, tokenizer
